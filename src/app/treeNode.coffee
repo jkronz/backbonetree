@@ -1,7 +1,7 @@
 class backstraptree.TreeNode extends Backbone.View
   events:
     'click * > a.expand': 'expand'
-    'change .selected-box': 'toggleSelected'
+    'change * > .selected-box': 'toggleSelected'
 
   initialize: (options) =>
     @node = options.node
@@ -19,8 +19,11 @@ class backstraptree.TreeNode extends Backbone.View
     @$('.children').html(fragment)
     return this
 
-  toggleSelected: =>
-    Backbone.trigger "backstraptree:nodeselected", @node
+  toggleSelected: (event) =>
+    targetChecked = @$(".selected-box:first").prop('checked')
+    @$(".selected-box").prop('checked', targetChecked)
+    event.stopPropagation()
+    Backbone.trigger 'backstraptree:selection_updated'
 
   expand: (event) =>
     target = @$("li.node:first")
@@ -47,3 +50,10 @@ class backstraptree.TreeNode extends Backbone.View
       <li class="node">#{@node[@nameField]}</li>
       """
 
+  collectCheckedNodes: (accum) =>
+    if @$(".selected-box:first").prop('checked')
+      accum.push(@node)
+    else
+      _.each @childViews, (view) =>
+        view.collectCheckedNodes(accum)
+    return accum
