@@ -1,6 +1,7 @@
 module.exports = (grunt) ->
   sourceFiles = [
     'src/app/treeView.coffee'
+    'src/app/treeNode.coffee'
   ]
   grunt.initConfig
     coffee:
@@ -22,4 +23,4 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-compass'
   grunt.loadNpmTasks 'grunt-contrib-watch'
-  grunt.registerTask 'default', ['watch']
+  grunt.registerTask 'default', ['coffee:app', 'compass:app', 'watch']

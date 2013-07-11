@@ -1,4 +1,4 @@
-{"tree":{
+sampledata = {
   "id":0,
   "symbol":"root",
   "parentId":0,
@@ -1716,4 +1716,4 @@
       ]
     }
   ]
-}}
+};
