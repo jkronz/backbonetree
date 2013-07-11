@@ -1,0 +1,21 @@
+{
+  "name": "backstraptree",
+  "version": "0.0.1",
+  "description": "Selectable Tree View via Backbone.js & Twitter Bootstrap",
+  "author": "https://github.com/jkronz",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-uglify": "~0.2.2",
+    "grunt-contrib-watch": "~0.4.4",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-coffee": "~0.7.0",
+    "grunt-contrib-compass": "~0.3.0",
+    "grunt-cachebuster": "~0.1.4",
+    "grunt-dustjs": "~0.2.2",
+    "coffee-script": "1.x.x",
+    "dustjs-linkedin": "git://github.com/tucker777/dustjs.git#v2.0.0",
+    "dustjs-helpers": "git://github.com/linkedin/dustjs-helpers.git#v1.0.1",
+    "uglify-js": "1.x.x",
+    "grunt-contrib-clean": "~0.4.1"
+  }
+}
