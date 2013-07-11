@@ -22,7 +22,8 @@
   $(function() {
     var treeView = new backstraptree.TreeView({
       tree: sampledata,
-      nameField: 'symbol'
+      nameField: 'symbol',
+      showLeaves: true
     });
     $(".the-tree").html(treeView.render().el);
   });

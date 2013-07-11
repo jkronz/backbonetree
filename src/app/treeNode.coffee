@@ -1,28 +1,49 @@
 class backstraptree.TreeNode extends Backbone.View
   events:
-    'click .expand': 'expand'
+    'click * > a.expand': 'expand'
     'change .selected-box': 'toggleSelected'
 
   initialize: (options) =>
     @node = options.node
     @nameField = options.nameField || 'name'
+    @showLeaves = options.showLeaves
     @childViews = []
 
   render: =>
     @$el.html(@template())
     fragment = document.createDocumentFragment()
     _.each @node.children, (child) =>
-      childView = new backstraptree.TreeNode({node: child, nameField: @nameField})
+      childView = new backstraptree.TreeNode({node: child, nameField: @nameField, showLeaves: @showLeaves})
       @childViews.push(childView)
       fragment.appendChild(childView.render().el)
     @$('.children').html(fragment)
     return this
 
+  toggleSelected: =>
+    Backbone.trigger "backstraptree:nodeselected", @node
+
+  expand: (event) =>
+    target = @$("li.node:first")
+    if target.is(".collapsed")
+      target.removeClass('collapsed')
+    else
+      target.addClass('collapsed')
+    event.stopPropagation()
+
   template: =>
-    templateText = []
-    templateText.push """<li class="node">#{@node[@nameField]}"""
     if @node.children? && @node.children.length
-      templateText.push """<ul class="children"></ul>"""
-    templateText.push "</li>"
-    templateText.join("")
+      """
+      <li class="node collapsed">
+        <a href="#" class="expand">
+          <i class="icon-expand-alt"></i>
+          <i class="icon-collapse-alt"></i>
+        </a>
+        <label><input type="checkbox" class="selected-box">#{@node[@nameField]}</label>
+        <ul class="children"></ul>
+      </li>
+      """
+    else if @showLeaves
+      """
+      <li class="node">#{@node[@nameField]}</li>
+      """
 

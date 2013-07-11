@@ -1,0 +1,20 @@
+.node {
+  > a.expand {
+    .icon-expand-alt {
+      display: none;
+    }
+  }
+  &.collapsed {
+    > ul.children {
+      display: none;
+    }
+    > a.expand {
+      .icon-collapse-alt {
+        display: none;
+      }
+      .icon-expand-alt {
+        display: inline;
+      }
+    }
+  }
+}
