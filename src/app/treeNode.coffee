@@ -38,6 +38,7 @@ class backbonetree.TreeNode extends Backbone.View
     else
       @$el.addClass('collapsed')
     event.stopPropagation()
+    event.preventDefault()
 
   template: =>
     if @node.children? && @node.children.length

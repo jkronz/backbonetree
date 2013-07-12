@@ -143,7 +143,8 @@
       } else {
         this.$el.addClass('collapsed');
       }
-      return event.stopPropagation();
+      event.stopPropagation();
+      return event.preventDefault();
     };
 
     TreeNode.prototype.template = function() {
