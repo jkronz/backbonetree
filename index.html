@@ -20,27 +20,23 @@
 
     <p>Selectable Tree View via Backbone.js</p>
 
-    <p class="view"><a href="https://github.com/jkronz/backbonetree">View the Project on GitHub
-      <small>jkronz/backbonetree</small>
-    </a></p>
-
-
     <ul>
-      <li><a href="https://github.com/jkronz/backbonetree/zipball/master">Download <strong>ZIP File</strong></a></li>
-      <li><a href="https://github.com/jkronz/backbonetree/tarball/master">Download <strong>TAR Ball</strong></a></li>
+      <li><a href="https://raw.github.com/jkronz/backbonetree/master/dist/app/backbonetree.min.js">Minified Source</a></li>
+      <li><a href="https://raw.github.com/jkronz/backbonetree/master/dist/style/backbonetree.css">Style Sheet</a></li>
       <li><a href="https://github.com/jkronz/backbonetree">View On <strong>GitHub</strong></a></li>
     </ul>
   </header>
   <section>
     <h2>
-      <a name="example" class="anchor" href="#example"><span class="octicon octicon-link"></span></a>Example</h2>
+      <a name="example" class="anchor" href="#example"></a>Example</h2>
+    <div class="selected-nodes"></div>
     <div class="the-tree">
 
     </div>
   </section>
   <section>
     <h2>
-      <a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+      <a name="usage" class="anchor" href="#usage"></a>Usage</h2>
 
     <p>You'll want to grab <code>dist/app/backbonetree.js</code> and <code>dist/style/backbonetree.css</code></p>
 
@@ -53,14 +49,23 @@
     $(".the-tree").html(treeView.render().el);
   });
 </code></pre>
-
+    <p>When you're done with the tree, calling <code>TreeView#remove()</code> will close the child views and wrap up all event listeners.</p>
     <h2>
-      <a name="style" class="anchor" href="#style"><span class="octicon octicon-link"></span></a>Style</h2>
+      <a name="style" class="anchor" href="#style"></a>Style</h2>
 
     <p>Tree is styled with bootstrap (<a
             href="http://twitter.github.io/bootstrap/">http://twitter.github.io/bootstrap/</a>) and font-awesome (<a
             href="http://fortawesome.github.io/Font-Awesome/">http://fortawesome.github.io/Font-Awesome/</a>) for the
       expand/collapse icons. </p>
+
+    <h2>
+      <a name="events" class="anchor" href="#events"></a>Events
+    </h2>
+    <p>
+      When selections are changed, <code>'backbonetree:selection_updated'</code> is fired on the global <code>Backbone</code> object.
+      You can call <code>TreeView#collectCheckedNodes()</code> to get all the objects that are currently selected. Note
+      that this will only return the topmost checked nodes; selected children are implied.</a>
+    </p>
   </section>
 
   <footer>
@@ -74,7 +79,7 @@
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript" src="lib/js/lodash.min.js"></script>
 <script type="text/javascript" src="lib/js/backbone-min.js"></script>
-<script type="text/javascript" src="dist/app/backbonetree.js"></script>
+<script type="text/javascript" src="dist/app/backbonetree.min.js"></script>
 <script type="text/javascript" src="sampledata.js"></script>
 <script type="text/javascript">
   $(function() {
@@ -83,7 +88,13 @@
       nameField: 'symbol',
       showLeaves: true
     });
+
     $(".the-tree").html(treeView.render().el);
+    var listener = _.extend(Backbone.Events);
+    listener.listenTo(Backbone, 'backbonetree:selection_updated', function() {
+      var collectedNodeNames = _.map(treeView.collectCheckedNodes(), function(node) { return node.symbol; });
+      $('.selected-nodes').text(collectedNodeNames.join(', '));
+    });
   });
 </script>
 </body>
