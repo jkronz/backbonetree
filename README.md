@@ -1,4 +1,4 @@
-backstraptree
+backbonetree
 =============
 
-Selectable Tree View via Backbone.js &amp; Twitter Bootstrap
+Selectable Tree View via Backbone.js

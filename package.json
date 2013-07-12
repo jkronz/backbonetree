@@ -1,7 +1,7 @@
 {
-  "name": "backstraptree",
+  "name": "backbonetree",
   "version": "0.0.1",
-  "description": "Selectable Tree View via Backbone.js & Twitter Bootstrap",
+  "description": "Selectable Tree View via Backbone.js",
   "author": "https://github.com/jkronz",
   "devDependencies": {
     "grunt": "~0.4.1",

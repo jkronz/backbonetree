@@ -1,22 +1,44 @@
-window.backstraptree = {}
-class backstraptree.TreeView extends Backbone.View
+window.backbonetree = {}
+class backbonetree.TreeView extends Backbone.View
+  tagName: 'ul'
+  className: 'backbonetree'
+
   initialize: (options) =>
     @tree = options.tree
     @nameField = options.nameField || 'name'
     @showLeaves = options.showLeaves || false
-    @listenTo Backbone, 'backstraptree:selection_updated', @updateCount
+    @listenTo Backbone, 'backbonetree:selection_updated', @updateCount
+    @childViews = []
 
   render: =>
-    @root = new backstraptree.TreeNode
-      node: @tree
-      nameField: @nameField
-      showLeaves: @showLeaves
-    @$el.html(@root.render().el)
+    # i dont care to display the root element.
+    @removeChildren()
+    elem = document.createDocumentFragment()
+    _.each @tree.children, (child) =>
+      childView = new backbonetree.TreeNode
+        node: child
+        nameField: @nameField
+        showLeaves: @showLeaves
+      @childViews.push(childView)
+      elem.appendChild(childView.render().el)
+    @$el.html(elem)
     return this
 
   updateCount: =>
     selectedNodes = @collectCheckedNodes()
+    console.log(['selectedNodes.length', selectedNodes.length])
 
   collectCheckedNodes: =>
-    @root.collectCheckedNodes([])
+    checkedNodes = _.map @childViews, (view) =>
+      view.collectCheckedNodes([])
+    _.flatten(checkedNodes)
 
+  removeChildren: =>
+    _.each @childViews, (view) =>
+      view.remove()
+
+  remove: =>
+    @removeChildren()
+    @stopListening()
+    @undelegateEvents()
+    super()

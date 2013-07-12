@@ -1,7 +1,10 @@
-class backstraptree.TreeNode extends Backbone.View
+class backbonetree.TreeNode extends Backbone.View
+  tagName: 'li'
+  className: 'node collapsed'
+
   events:
-    'click * > a.expand': 'expand'
-    'change * > .selected-box': 'toggleSelected'
+    'click > a.expand': 'expand'
+    'change > label > .selected-box': 'toggleSelected'
 
   initialize: (options) =>
     @node = options.node
@@ -13,41 +16,42 @@ class backstraptree.TreeNode extends Backbone.View
     @$el.html(@template())
     fragment = document.createDocumentFragment()
     _.each @node.children, (child) =>
-      childView = new backstraptree.TreeNode({node: child, nameField: @nameField, showLeaves: @showLeaves})
+      childView = new backbonetree.TreeNode({node: child, nameField: @nameField, showLeaves: @showLeaves})
       @childViews.push(childView)
       fragment.appendChild(childView.render().el)
     @$('.children').html(fragment)
     return this
 
   toggleSelected: (event) =>
-    targetChecked = @$(".selected-box:first").prop('checked')
-    @$(".selected-box").prop('checked', targetChecked)
+    target = @$(".selected-box:first")
+    targetChecked = target.prop('checked')
+    children = @$(".selected-box")
+    children.prop('checked', targetChecked)
+    children.prop('disabled', targetChecked)
+    target.prop('disabled', false)
     event.stopPropagation()
-    Backbone.trigger 'backstraptree:selection_updated'
+    Backbone.trigger 'backbonetree:selection_updated'
 
   expand: (event) =>
-    target = @$("li.node:first")
-    if target.is(".collapsed")
-      target.removeClass('collapsed')
+    if @$el.is(".collapsed")
+      @$el.removeClass('collapsed')
     else
-      target.addClass('collapsed')
+      @$el.addClass('collapsed')
     event.stopPropagation()
 
   template: =>
     if @node.children? && @node.children.length
       """
-      <li class="node collapsed">
         <a href="#" class="expand">
           <i class="icon-expand-alt"></i>
           <i class="icon-collapse-alt"></i>
         </a>
-        <label><input type="checkbox" class="selected-box">#{@node[@nameField]}</label>
+        <label class="checkbox"><input type="checkbox" class="selected-box">#{@node[@nameField]}</label>
         <ul class="children"></ul>
-      </li>
       """
     else if @showLeaves
       """
-      <li class="node">#{@node[@nameField]}</li>
+      <label class="checkbox"><input type="checkbox" class="selected-box">#{@node[@nameField]}</label>
       """
 
   collectCheckedNodes: (accum) =>
