@@ -7,7 +7,6 @@ class backbonetree.TreeView extends Backbone.View
     @tree = options.tree
     @nameField = options.nameField || 'name'
     @showLeaves = options.showLeaves || false
-    @listenTo Backbone, 'backbonetree:selection_updated', @updateCount
     @childViews = []
 
   render: =>
@@ -23,10 +22,6 @@ class backbonetree.TreeView extends Backbone.View
       elem.appendChild(childView.render().el)
     @$el.html(elem)
     return this
-
-  updateCount: =>
-    selectedNodes = @collectCheckedNodes()
-    console.log(['selectedNodes.length', selectedNodes.length])
 
   collectCheckedNodes: =>
     checkedNodes = _.map @childViews, (view) =>
