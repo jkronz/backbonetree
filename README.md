@@ -1,7 +1,7 @@
 backbonetree
 =============
 
-Selectable Tree View via Backbone.js
+Selectable Tree View via Backbone.js. See the demo: http://jkronz.github.io/backbonetree/
 
 ##Usage
 You'll want to grab `dist/app/backbonetree.js` and `dist/style/backbonetree.css`
