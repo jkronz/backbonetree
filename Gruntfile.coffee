@@ -7,7 +7,7 @@ module.exports = (grunt) ->
     coffee:
       app:
         files:
-          'dist/app/app.js': sourceFiles
+          'dist/app/backbonetree.js': sourceFiles
     compass:
       app:
         options:
