@@ -25,3 +25,10 @@ You can call `TreeView#collectCheckedNodes()` to get all the objects that are cu
 
 ##Style
 Tree is styled with bootstrap (http://twitter.github.io/bootstrap/) and font-awesome (http://fortawesome.github.io/Font-Awesome/) for the expand/collapse icons. 
+
+##Contrib
+Never used grunt? start with `npm install -g grunt-cli`
+
+After cloning, `npm install`, then `grunt` to watch for/auto compile updates. 
+
+Make your changes to the files in /src, I'll rebuild the minified source after merging your pull request. 
