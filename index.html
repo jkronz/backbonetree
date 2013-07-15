@@ -98,10 +98,12 @@
 
     $(".the-tree").html(treeView.render().el);
     var listener = _.extend(Backbone.Events);
-    listener.listenTo(Backbone, 'backbonetree:selection_updated', function() {
+    function displayCheckedNodes() {
       var collectedNodeNames = _.map(treeView.collectCheckedNodes(), function(node) { return node.symbol; });
       $('.selected-nodes').text(collectedNodeNames.join(', '));
-    });
+    }
+    listener.listenTo(Backbone, 'backbonetree:selection_updated', displayCheckedNodes);
+    displayCheckedNodes();
   });
 </script>
 </body>
