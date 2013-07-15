@@ -44,7 +44,11 @@
     var treeView = new backbonetree.TreeView({
       tree: sampledata, //json tree data, children should be specified as a "children" attribute. see sampledata.js
       nameField: 'symbol', //What attribute of the node should be displayed as the label for that node?
-    showLeaves: true //Display the leaf nodes?
+      showLeaves: true, //Display the leaf nodes?
+      selected: function(node) { //Should the input be checked? this could also be a string name of
+                                 //a node attribute, like selected: "someBooleanField"
+        return node.symbol === "Energy Equipment & Services" || node.symbol === "Consumer Discretionary";
+      }
     });
     $(".the-tree").html(treeView.render().el);
   });
@@ -86,7 +90,10 @@
     var treeView = new backbonetree.TreeView({
       tree: sampledata,
       nameField: 'symbol',
-      showLeaves: true
+      showLeaves: true,
+      selected: function(node) { //this could also be a string name of a node attribute, like selected: "someBooleanField"
+        return node.symbol === "Energy Equipment & Services" || node.symbol === "Consumer Discretionary";
+      }
     });
 
     $(".the-tree").html(treeView.render().el);
