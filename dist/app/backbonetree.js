@@ -24,9 +24,13 @@
     TreeView.prototype.className = 'backbonetree';
 
     TreeView.prototype.initialize = function(options) {
+      var _this = this;
       this.tree = options.tree;
       this.nameField = options.nameField || 'name';
       this.showLeaves = options.showLeaves || false;
+      this.selected = options.selected || function() {
+        return false;
+      };
       return this.childViews = [];
     };
 
@@ -40,7 +44,8 @@
         childView = new backbonetree.TreeNode({
           node: child,
           nameField: _this.nameField,
-          showLeaves: _this.showLeaves
+          showLeaves: _this.showLeaves,
+          selected: _this.selected
         });
         _this.childViews.push(childView);
         return elem.appendChild(childView.render().el);
@@ -108,9 +113,20 @@
     };
 
     TreeNode.prototype.initialize = function(options) {
+      var _this = this;
       this.node = options.node;
       this.nameField = options.nameField || 'name';
       this.showLeaves = options.showLeaves;
+      this.selected = options.selected;
+      if (typeof this.selected === "function") {
+        this._selected = this.selected;
+      } else {
+        this._selected = function(node) {
+          return node[_this.selected];
+        };
+      }
+      this.disabled = options.disabled || false;
+      this.checked = this.disabled || this._selected(this.node);
       return this.childViews = [];
     };
 
@@ -123,8 +139,10 @@
         var childView;
         childView = new backbonetree.TreeNode({
           node: child,
+          selected: _this._selected,
           nameField: _this.nameField,
-          showLeaves: _this.showLeaves
+          showLeaves: _this.showLeaves,
+          disabled: _this.disabled || _this.checked
         });
         _this.childViews.push(childView);
         return fragment.appendChild(childView.render().el);
@@ -141,7 +159,9 @@
       children.prop('checked', targetChecked);
       children.prop('disabled', targetChecked);
       target.prop('disabled', false);
-      event.stopPropagation();
+      if (event != null) {
+        event.stopPropagation();
+      }
       return Backbone.trigger('backbonetree:selection_updated');
     };
 
@@ -157,9 +177,9 @@
 
     TreeNode.prototype.template = function() {
       if ((this.node.children != null) && this.node.children.length) {
-        return "<a href=\"#\" class=\"expand\">\n  <i class=\"icon-expand-alt\"></i>\n  <i class=\"icon-collapse-alt\"></i>\n</a>\n<label class=\"checkbox\"><input type=\"checkbox\" class=\"selected-box\">" + this.node[this.nameField] + "</label>\n<ul class=\"children\"></ul>";
+        return "<a href=\"#\" class=\"expand\">\n  <i class=\"icon-expand-alt\"></i>\n  <i class=\"icon-collapse-alt\"></i>\n</a>\n<label class=\"checkbox\"><input type=\"checkbox\" class=\"selected-box\"\n  " + (this.checked ? "checked" : void 0) + "\n  " + (this.disabled ? "disabled" : void 0) + "\n  >" + this.node[this.nameField] + "</label>\n<ul class=\"children\"></ul>";
       } else if (this.showLeaves) {
-        return "<label class=\"checkbox\"><input type=\"checkbox\" class=\"selected-box\">" + this.node[this.nameField] + "</label>";
+        return "<label class=\"checkbox\"><input type=\"checkbox\" class=\"selected-box\"\n  " + (this.checked ? "checked" : void 0) + "\n  " + (this.disabled ? "disabled" : void 0) + "\n  >" + this.node[this.nameField] + "</label>";
       }
     };
 

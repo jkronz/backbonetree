@@ -10,13 +10,26 @@ class backbonetree.TreeNode extends Backbone.View
     @node = options.node
     @nameField = options.nameField || 'name'
     @showLeaves = options.showLeaves
+    @selected = options.selected
+    if typeof @selected == "function"
+      @_selected = @selected
+    else
+      @_selected = (node) =>
+        return node[@selected]
+    @disabled = options.disabled || false
+    @checked = @disabled || @_selected(@node)
     @childViews = []
 
   render: =>
     @$el.html(@template())
     fragment = document.createDocumentFragment()
     _.each @node.children, (child) =>
-      childView = new backbonetree.TreeNode({node: child, nameField: @nameField, showLeaves: @showLeaves})
+      childView = new backbonetree.TreeNode
+        node: child
+        selected: @_selected
+        nameField: @nameField
+        showLeaves: @showLeaves
+        disabled: @disabled || @checked #if this item is disabled or checked, all of its children are disabled.
       @childViews.push(childView)
       fragment.appendChild(childView.render().el)
     @$('.children').html(fragment)
@@ -29,7 +42,7 @@ class backbonetree.TreeNode extends Backbone.View
     children.prop('checked', targetChecked)
     children.prop('disabled', targetChecked)
     target.prop('disabled', false)
-    event.stopPropagation()
+    event?.stopPropagation()
     Backbone.trigger 'backbonetree:selection_updated'
 
   expand: (event) =>
@@ -47,12 +60,18 @@ class backbonetree.TreeNode extends Backbone.View
           <i class="icon-expand-alt"></i>
           <i class="icon-collapse-alt"></i>
         </a>
-        <label class="checkbox"><input type="checkbox" class="selected-box">#{@node[@nameField]}</label>
+        <label class="checkbox"><input type="checkbox" class="selected-box"
+          #{if @checked then "checked"}
+          #{if @disabled then "disabled"}
+          >#{@node[@nameField]}</label>
         <ul class="children"></ul>
       """
     else if @showLeaves
       """
-      <label class="checkbox"><input type="checkbox" class="selected-box">#{@node[@nameField]}</label>
+      <label class="checkbox"><input type="checkbox" class="selected-box"
+        #{if @checked then "checked"}
+        #{if @disabled then "disabled"}
+        >#{@node[@nameField]}</label>
       """
 
   collectCheckedNodes: (accum) =>

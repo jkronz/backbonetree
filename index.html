@@ -18,11 +18,15 @@
 <script type="text/javascript" src="dist/app/backbonetree.js"></script>
 <script type="text/javascript" src="sampledata.js"></script>
 <script type="text/javascript">
+  var selectedNodes = [10100000, 25200000];
   $(function() {
     var treeView = new backbonetree.TreeView({
       tree: sampledata,
       nameField: 'symbol',
-      showLeaves: true
+      showLeaves: true,
+      selected: function(node) {
+        return _.contains(selectedNodes, node.id)
+      }
     });
     $(".the-tree").html(treeView.render().el);
   });

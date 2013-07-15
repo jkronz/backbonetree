@@ -7,6 +7,8 @@ class backbonetree.TreeView extends Backbone.View
     @tree = options.tree
     @nameField = options.nameField || 'name'
     @showLeaves = options.showLeaves || false
+    @selected = options.selected || =>
+      return false
     @childViews = []
 
   render: =>
@@ -18,6 +20,7 @@ class backbonetree.TreeView extends Backbone.View
         node: child
         nameField: @nameField
         showLeaves: @showLeaves
+        selected: @selected
       @childViews.push(childView)
       elem.appendChild(childView.render().el)
     @$el.html(elem)
