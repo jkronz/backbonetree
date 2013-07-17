@@ -6,8 +6,41 @@ class backbonetree.TreeNode extends Backbone.View
     'click > a.expand': 'expand'
     'change > label > .selected-box': 'toggleSelected'
 
+  toggleSelected: (e) ->
+    target = @$(".selected-box:first")
+    checked = target.prop("checked")
+    container = target.parent().parent()
+    siblings = container.siblings()
+
+    #update all of the children.
+    container.find('input[type="checkbox"]').prop
+      indeterminate: false
+      checked: checked
+
+    checkSiblings = (el) ->
+      parent = el.parent().parent()
+      all = true
+      el.siblings().each (idx, sib) ->
+        ret = $(sib).find('> label > input[type="checkbox"]').prop("checked")
+        all = (ret == checked)
+      if all && checked
+        parent.find('> label > input[type="checkbox"]').prop
+          indeterminate: false
+          checked: checked
+        checkSiblings(parent)
+      else if all && not checked
+        parent.find('> label > input[type="checkbox"]').prop("checked", checked);
+        parent.find('> label > input[type="checkbox"]').prop("indeterminate", (parent.find('input[type="checkbox"]:checked').length > 0));
+        checkSiblings(parent)
+      else
+        el.parents("li").find('> label > input[type="checkbox"]').prop
+          indeterminate: true
+          checked: false
+    checkSiblings(container)
+
   initialize: (options) =>
     @node = options.node
+    @parent = options.parent
     @nameField = options.nameField || 'name'
     @showLeaves = options.showLeaves
     @selected = options.selected
@@ -16,8 +49,6 @@ class backbonetree.TreeNode extends Backbone.View
     else
       @_selected = (node) =>
         return node[@selected]
-    @disabled = options.disabled || false
-    @checked = @disabled || @_selected(@node)
     @childViews = []
 
   render: =>
@@ -26,24 +57,14 @@ class backbonetree.TreeNode extends Backbone.View
     _.each @node.children, (child) =>
       childView = new backbonetree.TreeNode
         node: child
+        parent: @
         selected: @_selected
         nameField: @nameField
         showLeaves: @showLeaves
-        disabled: @disabled || @checked #if this item is disabled or checked, all of its children are disabled.
       @childViews.push(childView)
       fragment.appendChild(childView.render().el)
     @$('.children').html(fragment)
     return this
-
-  toggleSelected: (event) =>
-    target = @$(".selected-box:first")
-    targetChecked = target.prop('checked')
-    children = @$(".selected-box")
-    children.prop('checked', targetChecked)
-    children.prop('disabled', targetChecked)
-    target.prop('disabled', false)
-    event?.stopPropagation()
-    Backbone.trigger 'backbonetree:selection_updated'
 
   expand: (event) =>
     if @$el.is(".collapsed")
@@ -60,18 +81,12 @@ class backbonetree.TreeNode extends Backbone.View
           <i class="icon-expand-alt"></i>
           <i class="icon-collapse-alt"></i>
         </a>
-        <label class="checkbox"><input type="checkbox" class="selected-box"
-          #{if @checked then "checked"}
-          #{if @disabled then "disabled"}
-          >#{@node[@nameField]}</label>
+        <label class="checkbox"><input type="checkbox" class="selected-box"> #{@node[@nameField]}</label>
         <ul class="children"></ul>
       """
     else if @showLeaves
       """
-      <label class="checkbox"><input type="checkbox" class="selected-box"
-        #{if @checked then "checked"}
-        #{if @disabled then "disabled"}
-        >#{@node[@nameField]}</label>
+      <label class="checkbox"><input type="checkbox" class="selected-box"> #{@node[@nameField]}</label>
       """
 
   collectCheckedNodes: (accum) =>

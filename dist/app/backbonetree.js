@@ -45,7 +45,8 @@
           node: child,
           nameField: _this.nameField,
           showLeaves: _this.showLeaves,
-          selected: _this.selected
+          selected: _this.selected,
+          parent: null
         });
         _this.childViews.push(childView);
         return elem.appendChild(childView.render().el);
@@ -96,7 +97,6 @@
       this.collectCheckedNodes = __bind(this.collectCheckedNodes, this);
       this.template = __bind(this.template, this);
       this.expand = __bind(this.expand, this);
-      this.toggleSelected = __bind(this.toggleSelected, this);
       this.render = __bind(this.render, this);
       this.initialize = __bind(this.initialize, this);
       _ref = TreeNode.__super__.constructor.apply(this, arguments);
@@ -112,9 +112,49 @@
       'change > label > .selected-box': 'toggleSelected'
     };
 
+    TreeNode.prototype.toggleSelected = function(e) {
+      var checkSiblings, checked, container, siblings, target;
+      target = this.$(".selected-box:first");
+      checked = target.prop("checked");
+      container = target.parent().parent();
+      siblings = container.siblings();
+      container.find('input[type="checkbox"]').prop({
+        indeterminate: false,
+        checked: checked
+      });
+      checkSiblings = function(el) {
+        var all, parent;
+        parent = el.parent().parent();
+        all = true;
+        el.siblings().each(function(idx, sib) {
+          var ret;
+          ret = $(sib).find('> label > input[type="checkbox"]').prop("checked");
+          return all = ret === checked;
+        });
+        if (all && checked) {
+          parent.find('> label > input[type="checkbox"]').prop({
+            indeterminate: false,
+            checked: checked
+          });
+          return checkSiblings(parent);
+        } else if (all && !checked) {
+          parent.find('> label > input[type="checkbox"]').prop("checked", checked);
+          parent.find('> label > input[type="checkbox"]').prop("indeterminate", parent.find('input[type="checkbox"]:checked').length > 0);
+          return checkSiblings(parent);
+        } else {
+          return el.parents("li").find('> label > input[type="checkbox"]').prop({
+            indeterminate: true,
+            checked: false
+          });
+        }
+      };
+      return checkSiblings(container);
+    };
+
     TreeNode.prototype.initialize = function(options) {
       var _this = this;
       this.node = options.node;
+      this.parent = options.parent;
       this.nameField = options.nameField || 'name';
       this.showLeaves = options.showLeaves;
       this.selected = options.selected;
@@ -125,8 +165,6 @@
           return node[_this.selected];
         };
       }
-      this.disabled = options.disabled || false;
-      this.checked = this.disabled || this._selected(this.node);
       return this.childViews = [];
     };
 
@@ -139,30 +177,16 @@
         var childView;
         childView = new backbonetree.TreeNode({
           node: child,
+          parent: _this,
           selected: _this._selected,
           nameField: _this.nameField,
-          showLeaves: _this.showLeaves,
-          disabled: _this.disabled || _this.checked
+          showLeaves: _this.showLeaves
         });
         _this.childViews.push(childView);
         return fragment.appendChild(childView.render().el);
       });
       this.$('.children').html(fragment);
       return this;
-    };
-
-    TreeNode.prototype.toggleSelected = function(event) {
-      var children, target, targetChecked;
-      target = this.$(".selected-box:first");
-      targetChecked = target.prop('checked');
-      children = this.$(".selected-box");
-      children.prop('checked', targetChecked);
-      children.prop('disabled', targetChecked);
-      target.prop('disabled', false);
-      if (event != null) {
-        event.stopPropagation();
-      }
-      return Backbone.trigger('backbonetree:selection_updated');
     };
 
     TreeNode.prototype.expand = function(event) {
@@ -177,9 +201,9 @@
 
     TreeNode.prototype.template = function() {
       if ((this.node.children != null) && this.node.children.length) {
-        return "<a href=\"#\" class=\"expand\">\n  <i class=\"icon-expand-alt\"></i>\n  <i class=\"icon-collapse-alt\"></i>\n</a>\n<label class=\"checkbox\"><input type=\"checkbox\" class=\"selected-box\"\n  " + (this.checked ? "checked" : void 0) + "\n  " + (this.disabled ? "disabled" : void 0) + "\n  >" + this.node[this.nameField] + "</label>\n<ul class=\"children\"></ul>";
+        return "<a href=\"#\" class=\"expand\">\n  <i class=\"icon-expand-alt\"></i>\n  <i class=\"icon-collapse-alt\"></i>\n</a>\n<label class=\"checkbox\"><input type=\"checkbox\" class=\"selected-box\"> " + this.node[this.nameField] + "</label>\n<ul class=\"children\"></ul>";
       } else if (this.showLeaves) {
-        return "<label class=\"checkbox\"><input type=\"checkbox\" class=\"selected-box\"\n  " + (this.checked ? "checked" : void 0) + "\n  " + (this.disabled ? "disabled" : void 0) + "\n  >" + this.node[this.nameField] + "</label>";
+        return "<label class=\"checkbox\"><input type=\"checkbox\" class=\"selected-box\"> " + this.node[this.nameField] + "</label>";
       }
     };
 
