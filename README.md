@@ -20,7 +20,7 @@ You'll want to grab `dist/app/backbonetree.js` and `dist/style/backbonetree.css`
 When you're done with the tree, calling `TreeView#remove()` will close the child views and wrap up all event listeners.
 
 ##Events
-When selections are changed, 'backbonetree:selection_updated' is fired on the global Backbone object.
+When selections are changed, 'backbonetree:selection_updated' is fired on the current `TreeView`.
 You can call `TreeView#collectCheckedNodes()` to get all the objects that are currently selected. Note that this will only return the topmost checked nodes; selected children are implied.
 
 ##Style

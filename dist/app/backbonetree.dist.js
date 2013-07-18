@@ -48,7 +48,8 @@
           nameField: _this.nameField,
           showLeaves: _this.showLeaves,
           selected: _this.selected,
-          parent: null
+          parent: null,
+          treeView: _this
         });
         _this.childViews.push(childView);
         return elem.appendChild(childView.render().el);
@@ -132,6 +133,7 @@
     TreeNode.prototype.initialize = function(options) {
       var _this = this;
       this.node = options.node;
+      this.treeView = options.treeView;
       this.parent = options.parent;
       this.nameField = options.nameField || 'name';
       this.showLeaves = options.showLeaves;
@@ -158,7 +160,8 @@
           parent: _this,
           selected: _this._selected,
           nameField: _this.nameField,
-          showLeaves: _this.showLeaves
+          showLeaves: _this.showLeaves,
+          treeView: _this.treeView
         });
         _this.childViews.push(childView);
         return fragment.appendChild(childView.render().el);
@@ -180,7 +183,8 @@
       var checked, target;
       target = this.$(".selected-box:first");
       checked = target.prop("checked");
-      return this.processUpdates(checked);
+      this.processUpdates(checked);
+      return this.treeView.trigger('backbonetree:selection_updated', this.node);
     };
 
     TreeNode.prototype.forceUpdate = function(checked) {

@@ -22,6 +22,7 @@ class backbonetree.TreeView extends Backbone.View
         showLeaves: @showLeaves
         selected: @selected
         parent: null
+        treeView: @
       @childViews.push(childView)
       elem.appendChild(childView.render().el)
     @$el.html(elem)

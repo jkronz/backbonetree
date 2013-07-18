@@ -8,9 +8,17 @@
 </head>
 <body>
 <div class="container" id="tree-control-container">
-  <h1>backbonetree in action</h1>
+  <div class="row">
+    <div class="span6">
+      <h2>backbonetree in action</h2>
+      <div class="the-tree"></div>
+    </div>
+    <div class="span6">
+      <h2>selected nodes</h2>
+      <div class="selected-nodes"></div>
+    </div>
+  </div>
 
-  <div class="the-tree"></div>
 </div>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript" src="lib/js/lodash.min.js"></script>
@@ -19,6 +27,7 @@
 <script type="text/javascript" src="sampledata.js"></script>
 <script type="text/javascript">
   var selectedNodes = [10100000, 25200000];
+
   $(function() {
     var treeView = new backbonetree.TreeView({
       tree: sampledata,
@@ -28,50 +37,14 @@
         return _.contains(selectedNodes, node.id)
       }
     });
+    var displayCheckedNodes = function() {
+      var collectedNodeNames = _.map(treeView.collectCheckedNodes(), function(node) { return node.symbol });
+      $(".selected-nodes").text(collectedNodeNames.join(", "));
+    };
     $(".the-tree").html(treeView.render().el);
-  });
-
-
-  $(function() {
-  	  // Apparently click is better chan change? Cuz IE?
-      $('input[type="checkbox"]').change(function(e) {
-      var checked = $(this).prop("checked"),
-          container = $(this).parent(),
-          siblings = container.siblings();
-
-      container.find('input[type="checkbox"]').prop({
-          indeterminate: false,
-          checked: checked
-      });
-
-      function checkSiblings(el) {
-          var parent = el.parent().parent(),
-              all = true;
-
-          el.siblings().each(function() {
-              return all = ($(this).children('input[type="checkbox"]').prop("checked") === checked);
-          });
-
-          if (all && checked) {
-              parent.children('input[type="checkbox"]').prop({
-                  indeterminate: false,
-                  checked: checked
-              });
-              checkSiblings(parent);
-          } else if (all && !checked) {
-              parent.children('input[type="checkbox"]').prop("checked", checked);
-              parent.children('input[type="checkbox"]').prop("indeterminate", (parent.find('input[type="checkbox"]:checked').length > 0));
-              checkSiblings(parent);
-          } else {
-              el.parents("li").children('input[type="checkbox"]').prop({
-                  indeterminate: true,
-                  checked: false
-              });
-          }
-        }
-
-        checkSiblings(container);
-      });
+    var listener = _.extend(Backbone.Events);
+    listener.listenTo(treeView, 'backbonetree:selection_updated', displayCheckedNodes);
+    displayCheckedNodes();
   });
 </script>
 </body>

@@ -8,6 +8,7 @@ class backbonetree.TreeNode extends Backbone.View
 
   initialize: (options) =>
     @node = options.node
+    @treeView = options.treeView
     @parent = options.parent
     @nameField = options.nameField || 'name'
     @showLeaves = options.showLeaves
@@ -29,6 +30,7 @@ class backbonetree.TreeNode extends Backbone.View
         selected: @_selected
         nameField: @nameField
         showLeaves: @showLeaves
+        treeView: @treeView
       @childViews.push(childView)
       fragment.appendChild(childView.render().el)
     @$('.children').html(fragment)
@@ -43,6 +45,7 @@ class backbonetree.TreeNode extends Backbone.View
     target = @$(".selected-box:first")
     checked = target.prop("checked")
     @processUpdates(checked)
+    @treeView.trigger 'backbonetree:selection_updated', @node
 
   forceUpdate: (checked) ->
     @$(".selected-box:first").prop('checked', checked)
