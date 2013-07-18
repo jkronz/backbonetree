@@ -236,8 +236,10 @@
       } else {
         this.$el.addClass('collapsed');
       }
-      event.stopPropagation();
-      return event.preventDefault();
+      if (event != null) {
+        event.stopPropagation();
+      }
+      return event != null ? event.preventDefault() : void 0;
     };
 
     TreeNode.prototype.template = function() {
