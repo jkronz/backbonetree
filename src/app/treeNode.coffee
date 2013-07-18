@@ -6,9 +6,50 @@ class backbonetree.TreeNode extends Backbone.View
     'click > a.expand': 'expand'
     'change > label > .selected-box': 'toggleSelected'
 
+  initialize: (options) =>
+    @node = options.node
+    @parent = options.parent
+    @nameField = options.nameField || 'name'
+    @showLeaves = options.showLeaves
+    @selected = options.selected
+    if typeof @selected == "function"
+      @_selected = @selected
+    else
+      @_selected = (node) =>
+        return node[@selected]
+    @childViews = []
+
+  render: =>
+    @$el.html(@template())
+    fragment = document.createDocumentFragment()
+    _.each @node.children, (child) =>
+      childView = new backbonetree.TreeNode
+        node: child
+        parent: @
+        selected: @_selected
+        nameField: @nameField
+        showLeaves: @showLeaves
+      @childViews.push(childView)
+      fragment.appendChild(childView.render().el)
+    @$('.children').html(fragment)
+    return this
+
+  reset: =>
+    selected = @_selected(@node)
+    if selected then @forceUpdate(selected)
+    selected
+
   toggleSelected: (e) ->
     target = @$(".selected-box:first")
     checked = target.prop("checked")
+    @processUpdates(checked)
+
+  forceUpdate: (checked) ->
+    @$(".selected-box:first").prop('checked', checked)
+    @processUpdates(checked)
+
+  processUpdates: (checked) ->
+    target = @$(".selected-box:first")
     container = target.parent().parent()
     siblings = container.siblings()
 
@@ -37,34 +78,6 @@ class backbonetree.TreeNode extends Backbone.View
           indeterminate: true
           checked: false
     checkSiblings(container)
-
-  initialize: (options) =>
-    @node = options.node
-    @parent = options.parent
-    @nameField = options.nameField || 'name'
-    @showLeaves = options.showLeaves
-    @selected = options.selected
-    if typeof @selected == "function"
-      @_selected = @selected
-    else
-      @_selected = (node) =>
-        return node[@selected]
-    @childViews = []
-
-  render: =>
-    @$el.html(@template())
-    fragment = document.createDocumentFragment()
-    _.each @node.children, (child) =>
-      childView = new backbonetree.TreeNode
-        node: child
-        parent: @
-        selected: @_selected
-        nameField: @nameField
-        showLeaves: @showLeaves
-      @childViews.push(childView)
-      fragment.appendChild(childView.render().el)
-    @$('.children').html(fragment)
-    return this
 
   expand: (event) =>
     if @$el.is(".collapsed")

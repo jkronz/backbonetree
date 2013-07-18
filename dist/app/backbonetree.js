@@ -10,6 +10,8 @@
     __extends(TreeView, _super);
 
     function TreeView() {
+      this.reset = __bind(this.reset, this);
+      this.resetNodes = __bind(this.resetNodes, this);
       this.remove = __bind(this.remove, this);
       this.removeChildren = __bind(this.removeChildren, this);
       this.collectCheckedNodes = __bind(this.collectCheckedNodes, this);
@@ -52,6 +54,7 @@
         return elem.appendChild(childView.render().el);
       });
       this.$el.html(elem);
+      this.resetNodes(this);
       return this;
     };
 
@@ -78,6 +81,27 @@
       return TreeView.__super__.remove.call(this);
     };
 
+    TreeView.prototype.resetNodes = function(node) {
+      var next, queue, _results,
+        _this = this;
+      queue = [];
+      next = node;
+      _results = [];
+      while (next) {
+        if (!next.reset() && next.childViews.length) {
+          _.each(next.childViews, function(child) {
+            return queue.push(child);
+          });
+        }
+        _results.push(next = queue.shift());
+      }
+      return _results;
+    };
+
+    TreeView.prototype.reset = function() {
+      return false;
+    };
+
     return TreeView;
 
   })(Backbone.View);
@@ -97,6 +121,7 @@
       this.collectCheckedNodes = __bind(this.collectCheckedNodes, this);
       this.template = __bind(this.template, this);
       this.expand = __bind(this.expand, this);
+      this.reset = __bind(this.reset, this);
       this.render = __bind(this.render, this);
       this.initialize = __bind(this.initialize, this);
       _ref = TreeNode.__super__.constructor.apply(this, arguments);
@@ -110,45 +135,6 @@
     TreeNode.prototype.events = {
       'click > a.expand': 'expand',
       'change > label > .selected-box': 'toggleSelected'
-    };
-
-    TreeNode.prototype.toggleSelected = function(e) {
-      var checkSiblings, checked, container, siblings, target;
-      target = this.$(".selected-box:first");
-      checked = target.prop("checked");
-      container = target.parent().parent();
-      siblings = container.siblings();
-      container.find('input[type="checkbox"]').prop({
-        indeterminate: false,
-        checked: checked
-      });
-      checkSiblings = function(el) {
-        var all, parent;
-        parent = el.parent().parent();
-        all = true;
-        el.siblings().each(function(idx, sib) {
-          var ret;
-          ret = $(sib).find('> label > input[type="checkbox"]').prop("checked");
-          return all = ret === checked;
-        });
-        if (all && checked) {
-          parent.find('> label > input[type="checkbox"]').prop({
-            indeterminate: false,
-            checked: checked
-          });
-          return checkSiblings(parent);
-        } else if (all && !checked) {
-          parent.find('> label > input[type="checkbox"]').prop("checked", checked);
-          parent.find('> label > input[type="checkbox"]').prop("indeterminate", parent.find('input[type="checkbox"]:checked').length > 0);
-          return checkSiblings(parent);
-        } else {
-          return el.parents("li").find('> label > input[type="checkbox"]').prop({
-            indeterminate: true,
-            checked: false
-          });
-        }
-      };
-      return checkSiblings(container);
     };
 
     TreeNode.prototype.initialize = function(options) {
@@ -187,6 +173,65 @@
       });
       this.$('.children').html(fragment);
       return this;
+    };
+
+    TreeNode.prototype.reset = function() {
+      var selected;
+      selected = this._selected(this.node);
+      if (selected) {
+        this.forceUpdate(selected);
+      }
+      return selected;
+    };
+
+    TreeNode.prototype.toggleSelected = function(e) {
+      var checked, target;
+      target = this.$(".selected-box:first");
+      checked = target.prop("checked");
+      return this.processUpdates(checked);
+    };
+
+    TreeNode.prototype.forceUpdate = function(checked) {
+      this.$(".selected-box:first").prop('checked', checked);
+      return this.processUpdates(checked);
+    };
+
+    TreeNode.prototype.processUpdates = function(checked) {
+      var checkSiblings, container, siblings, target;
+      target = this.$(".selected-box:first");
+      container = target.parent().parent();
+      siblings = container.siblings();
+      container.find('input[type="checkbox"]').prop({
+        indeterminate: false,
+        checked: checked
+      });
+      checkSiblings = function(el) {
+        var all, parent;
+        parent = el.parent().parent();
+        all = true;
+        el.siblings().each(function(idx, sib) {
+          var ret;
+          ret = $(sib).find('> label > input[type="checkbox"]').prop("checked");
+          return all = ret === checked;
+        });
+        if (all && checked) {
+          parent.find('> label > input[type="checkbox"]').prop({
+            indeterminate: false,
+            checked: checked
+          });
+          return checkSiblings(parent);
+        } else if (all && !checked) {
+          parent.find('> label > input[type="checkbox"]').prop("checked", checked);
+          parent.find('> label > input[type="checkbox"]').prop("indeterminate", parent.find('input[type="checkbox"]:checked').length > 0);
+          return checkSiblings(parent);
+        } else {
+          return el.parents("li").find('> label > input[type="checkbox"]').prop({
+            indeterminate: true,
+            checked: false
+          });
+        }
+      };
+      return checkSiblings(container);
     };
 
     TreeNode.prototype.expand = function(event) {

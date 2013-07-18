@@ -25,6 +25,7 @@ class backbonetree.TreeView extends Backbone.View
       @childViews.push(childView)
       elem.appendChild(childView.render().el)
     @$el.html(elem)
+    @resetNodes(@)
     return this
 
   collectCheckedNodes: =>
@@ -41,3 +42,15 @@ class backbonetree.TreeView extends Backbone.View
     @stopListening()
     @undelegateEvents()
     super()
+
+  resetNodes: (node) =>
+    queue = []
+    next = node
+    while next
+      if not next.reset() && next.childViews.length
+        _.each next.childViews, (child) =>
+          queue.push(child)
+      next = queue.shift()
+
+  reset: =>
+    return false
