@@ -122,6 +122,7 @@
       this.collectCheckedNodes = __bind(this.collectCheckedNodes, this);
       this.template = __bind(this.template, this);
       this.expand = __bind(this.expand, this);
+      this.updateParentNodes = __bind(this.updateParentNodes, this);
       this.reset = __bind(this.reset, this);
       this.render = __bind(this.render, this);
       this.initialize = __bind(this.initialize, this);
@@ -201,41 +202,34 @@
     };
 
     TreeNode.prototype.processUpdates = function(checked) {
-      var checkSiblings, container, siblings, target;
+      var container, target, _ref1;
       target = this.$(".selected-box:first");
       container = target.parent().parent();
-      siblings = container.siblings();
       container.find('input[type="checkbox"]').prop({
         indeterminate: false,
         checked: checked
       });
-      checkSiblings = function(el) {
-        var all, parent;
-        parent = el.parent().parent();
-        all = true;
-        el.siblings().each(function(idx, sib) {
-          var ret;
-          ret = $(sib).find('> label > input[type="checkbox"]').prop("checked");
-          return all = ret === checked;
+      return (_ref1 = this.parent) != null ? _ref1.updateParentNodes() : void 0;
+    };
+
+    TreeNode.prototype.updateParentNodes = function() {
+      var all, any, _ref1,
+        _this = this;
+      any = _.any(this.childViews, function(vw) {
+        return vw.$('.selected-box:first').prop('checked') || vw.$('.selected-box:first').prop('indeterminate');
+      });
+      if (any) {
+        all = _.all(this.childViews, function(vw) {
+          return vw.$('.selected-box:first').prop('checked');
         });
-        if (all && checked) {
-          parent.find('> label > input[type="checkbox"]').prop({
-            indeterminate: false,
-            checked: checked
-          });
-          return checkSiblings(parent);
-        } else if (all && !checked) {
-          parent.find('> label > input[type="checkbox"]').prop("checked", checked);
-          parent.find('> label > input[type="checkbox"]').prop("indeterminate", parent.find('input[type="checkbox"]:checked').length > 0);
-          return checkSiblings(parent);
-        } else {
-          return el.parents("li").find('> label > input[type="checkbox"]').prop({
-            indeterminate: true,
-            checked: false
-          });
-        }
-      };
-      return checkSiblings(container);
+      } else {
+        all = false;
+      }
+      this.$('.selected-box:first').prop({
+        checked: all,
+        indeterminate: any && !all
+      });
+      return (_ref1 = this.parent) != null ? _ref1.updateParentNodes() : void 0;
     };
 
     TreeNode.prototype.expand = function(event) {

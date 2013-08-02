@@ -54,33 +54,25 @@ class backbonetree.TreeNode extends Backbone.View
   processUpdates: (checked) ->
     target = @$(".selected-box:first")
     container = target.parent().parent()
-    siblings = container.siblings()
 
     #update all of the children.
     container.find('input[type="checkbox"]').prop
       indeterminate: false
       checked: checked
+    @parent?.updateParentNodes()
 
-    checkSiblings = (el) ->
-      parent = el.parent().parent()
-      all = true
-      el.siblings().each (idx, sib) ->
-        ret = $(sib).find('> label > input[type="checkbox"]').prop("checked")
-        all = (ret == checked)
-      if all && checked
-        parent.find('> label > input[type="checkbox"]').prop
-          indeterminate: false
-          checked: checked
-        checkSiblings(parent)
-      else if all && not checked
-        parent.find('> label > input[type="checkbox"]').prop("checked", checked);
-        parent.find('> label > input[type="checkbox"]').prop("indeterminate", (parent.find('input[type="checkbox"]:checked').length > 0));
-        checkSiblings(parent)
-      else
-        el.parents("li").find('> label > input[type="checkbox"]').prop
-          indeterminate: true
-          checked: false
-    checkSiblings(container)
+  updateParentNodes: =>
+    any = _.any @childViews, (vw) =>
+      vw.$('.selected-box:first').prop('checked') || vw.$('.selected-box:first').prop('indeterminate')
+    if any
+      all = _.all @childViews, (vw) =>
+        vw.$('.selected-box:first').prop('checked')
+    else #if not any, then all must be false, no reason to iterate and check.
+      all = false
+    @$('.selected-box:first').prop
+      checked: all
+      indeterminate: any && !all
+    @parent?.updateParentNodes()
 
   expand: (event) =>
     if @$el.is(".collapsed")
