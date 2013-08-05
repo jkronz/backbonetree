@@ -11,10 +11,12 @@
   <div class="row">
     <div class="span6">
       <h2>backbonetree in action</h2>
+
       <div class="the-tree"></div>
     </div>
     <div class="span6">
       <h2>selected nodes</h2>
+
       <div class="selected-nodes"></div>
     </div>
   </div>
@@ -24,6 +26,7 @@
 <script type="text/javascript" src="lib/js/lodash.min.js"></script>
 <script type="text/javascript" src="lib/js/backbone-min.js"></script>
 <script type="text/javascript" src="dist/app/backbonetree.js"></script>
+<script type="text/javascript" src="dist/app/statictree.js"></script>
 <script type="text/javascript" src="sampledata.js"></script>
 <script type="text/javascript">
   var selectedNodes = [10100000, 25200000];
@@ -37,10 +40,20 @@
         return _.contains(selectedNodes, node.id)
       }
     });
+    var selectedNodesView = new statictree.StaticTree({
+      tree: sampledata,
+      nameField: 'symbol',
+      selected: function(node) {
+        return _.contains(selectedNodes, node.id)
+      }
+    });
+
     var displayCheckedNodes = function() {
-      var collectedNodeNames = _.map(treeView.collectCheckedNodes(), function(node) { return node.symbol });
-      $(".selected-nodes").text(collectedNodeNames.join(", "));
+      selectedNodes = treeView.collectCheckedNodes();
+      selectedNodesView.remove();
+      $('.selected-nodes').html(selectedNodesView.render().el);
     };
+
     $(".the-tree").html(treeView.render().el);
     var listener = _.extend(Backbone.Events);
     listener.listenTo(treeView, 'backbonetree:selection_updated', displayCheckedNodes);

@@ -104,3 +104,13 @@ class backbonetree.TreeNode extends Backbone.View
       _.each @childViews, (view) =>
         view.collectCheckedNodes(accum)
     return accum
+
+  removeChildren: =>
+    _.each @childViews, (view) =>
+      view.remove()
+
+  remove: =>
+    @removeChildren()
+    @stopListening()
+    @undelegateEvents()
+    super()

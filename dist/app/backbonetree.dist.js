@@ -111,6 +111,8 @@
     __extends(TreeNode, _super);
 
     function TreeNode() {
+      this.remove = __bind(this.remove, this);
+      this.removeChildren = __bind(this.removeChildren, this);
       this.collectCheckedNodes = __bind(this.collectCheckedNodes, this);
       this.template = __bind(this.template, this);
       this.expand = __bind(this.expand, this);
@@ -254,6 +256,20 @@
         });
       }
       return accum;
+    };
+
+    TreeNode.prototype.removeChildren = function() {
+      var _this = this;
+      return _.each(this.childViews, function(view) {
+        return view.remove();
+      });
+    };
+
+    TreeNode.prototype.remove = function() {
+      this.removeChildren();
+      this.stopListening();
+      this.undelegateEvents();
+      return TreeNode.__super__.remove.call(this);
     };
 
     return TreeNode;
