@@ -8,6 +8,7 @@ class backbonetree.TreeNode extends Backbone.View
 
   initialize: (options) =>
     @node = options.node
+    @readOnly = options.readOnly
     @treeView = options.treeView
     @parent = options.parent
     @nameField = options.nameField || 'name'
@@ -31,6 +32,7 @@ class backbonetree.TreeNode extends Backbone.View
         nameField: @nameField
         showLeaves: @showLeaves
         treeView: @treeView
+        readOnly: @readOnly
       @childViews.push(childView)
       fragment.appendChild(childView.render().el)
     @$('.children').html(fragment)
@@ -64,14 +66,13 @@ class backbonetree.TreeNode extends Backbone.View
   updateParentNodes: =>
     any = _.any @childViews, (vw) =>
       vw.$('.selected-box:first').prop('checked') || vw.$('.selected-box:first').prop('indeterminate')
-    if any
-      all = _.all @childViews, (vw) =>
-        vw.$('.selected-box:first').prop('checked')
-    else #if not any, then all must be false, no reason to iterate and check.
-      all = false
+    #if not any, then all must be false, no reason to iterate and check.
+    all = any && _.all @childViews, (vw) =>
+      vw.$('.selected-box:first').prop('checked')
     @$('.selected-box:first').prop
       checked: all
       indeterminate: any && !all
+      disabled: @readOnly
     @parent?.updateParentNodes()
 
   expand: (event) =>
@@ -89,12 +90,12 @@ class backbonetree.TreeNode extends Backbone.View
           <i class="icon-expand-alt"></i>
           <i class="icon-collapse-alt"></i>
         </a>
-        <label class="checkbox"><input type="checkbox" class="selected-box"> #{@node[@nameField]}</label>
+        <label class="checkbox"><input type="checkbox" class="selected-box" #{if @readOnly then "disabled"}> #{@node[@nameField]}</label>
         <ul class="children"></ul>
       """
     else if @showLeaves
       """
-      <label class="checkbox"><input type="checkbox" class="selected-box"> #{@node[@nameField]}</label>
+      <label class="checkbox"><input type="checkbox" class="selected-box" #{if @readOnly then "disabled"}> #{@node[@nameField]}</label>
       """
 
   collectCheckedNodes: (accum) =>

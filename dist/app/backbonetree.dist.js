@@ -30,6 +30,7 @@
       this.tree = options.tree;
       this.nameField = options.nameField || 'name';
       this.showLeaves = options.showLeaves || false;
+      this.readOnly = options.readOnly || false;
       this.selected = options.selected || function() {
         return false;
       };
@@ -49,7 +50,8 @@
           showLeaves: _this.showLeaves,
           selected: _this.selected,
           parent: null,
-          treeView: _this
+          treeView: _this,
+          readOnly: _this.readOnly
         });
         _this.childViews.push(childView);
         return elem.appendChild(childView.render().el);
@@ -136,6 +138,7 @@
     TreeNode.prototype.initialize = function(options) {
       var _this = this;
       this.node = options.node;
+      this.readOnly = options.readOnly;
       this.treeView = options.treeView;
       this.parent = options.parent;
       this.nameField = options.nameField || 'name';
@@ -164,7 +167,8 @@
           selected: _this._selected,
           nameField: _this.nameField,
           showLeaves: _this.showLeaves,
-          treeView: _this.treeView
+          treeView: _this.treeView,
+          readOnly: _this.readOnly
         });
         _this.childViews.push(childView);
         return fragment.appendChild(childView.render().el);
@@ -212,16 +216,13 @@
       any = _.any(this.childViews, function(vw) {
         return vw.$('.selected-box:first').prop('checked') || vw.$('.selected-box:first').prop('indeterminate');
       });
-      if (any) {
-        all = _.all(this.childViews, function(vw) {
-          return vw.$('.selected-box:first').prop('checked');
-        });
-      } else {
-        all = false;
-      }
+      all = any && _.all(this.childViews, function(vw) {
+        return vw.$('.selected-box:first').prop('checked');
+      });
       this.$('.selected-box:first').prop({
         checked: all,
-        indeterminate: any && !all
+        indeterminate: any && !all,
+        disabled: this.readOnly
       });
       return (_ref2 = this.parent) != null ? _ref2.updateParentNodes() : void 0;
     };
@@ -240,9 +241,9 @@
 
     TreeNode.prototype.template = function() {
       if ((this.node.children != null) && this.node.children.length) {
-        return "<a href=\"#\" class=\"expand\">\n  <i class=\"icon-expand-alt\"></i>\n  <i class=\"icon-collapse-alt\"></i>\n</a>\n<label class=\"checkbox\"><input type=\"checkbox\" class=\"selected-box\"> " + this.node[this.nameField] + "</label>\n<ul class=\"children\"></ul>";
+        return "<a href=\"#\" class=\"expand\">\n  <i class=\"icon-expand-alt\"></i>\n  <i class=\"icon-collapse-alt\"></i>\n</a>\n<label class=\"checkbox\"><input type=\"checkbox\" class=\"selected-box\" " + (this.readOnly ? "disabled" : void 0) + "> " + this.node[this.nameField] + "</label>\n<ul class=\"children\"></ul>";
       } else if (this.showLeaves) {
-        return "<label class=\"checkbox\"><input type=\"checkbox\" class=\"selected-box\"> " + this.node[this.nameField] + "</label>";
+        return "<label class=\"checkbox\"><input type=\"checkbox\" class=\"selected-box\" " + (this.readOnly ? "disabled" : void 0) + "> " + this.node[this.nameField] + "</label>";
       }
     };
 
