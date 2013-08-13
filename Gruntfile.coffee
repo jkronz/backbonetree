@@ -62,4 +62,4 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-concat'
   grunt.loadNpmTasks 'grunt-contrib-uglify'
   grunt.registerTask 'default', ['coffee:app', 'compass:app', 'watch']
-  grunt.registerTask 'deploy', ['concat:dist', 'concat:static', 'coffee:prod', 'compass:app', 'uglify:dist']
+  grunt.registerTask 'deploy', ['concat:dist', 'concat:static', 'concat:compact', 'coffee:prod', 'compass:app', 'uglify:dist']

@@ -18,15 +18,15 @@ class compactTree.CompactTree extends Backbone.View
     @calculateSelected(@tree, null)
 
   render: ->
-    view = new compactTree.CompactTreeNode
+    @root = new compactTree.CompactTreeNode
       node: @tree
       parent: null
       nameField: @nameField
       treeView: @
-    @childViews.push(view)
-    view.render()
+    @childViews.push(@root)
+    @root.render()
     @$el.html(@template())
-    @refreshViewport(view)
+    @refreshViewport(null)
     return this
 
   showParent: (event) =>
@@ -35,11 +35,13 @@ class compactTree.CompactTree extends Backbone.View
     event?.preventDefault()
 
   refreshViewport: (@currentView) =>
-    if @currentView.parent?
+    if @currentView?
       @$('.back').show()
+      @$('.tree-items').html(@currentView.childMarkup())
     else
+      @$('.tree-items').html(@root.el)
+      @root.delegateEvents()
       @$('.back').hide()
-    @$('.tree-items').html(@currentView.childMarkup())
 
   calculateSelected: (node, parent) =>
     if node.children? && node.children.length > 0
@@ -51,8 +53,10 @@ class compactTree.CompactTree extends Backbone.View
       else
         childrenSelected = _.map node.children, (child) =>
           @calculateSelected(child, node)
-        node.anySelected = _.any(childrenSelected)
-        node.allSelected = node.anySelected && _.all(childrenSelected)
+        any = _.any(childrenSelected)
+        node.anySelected = any || _.any node.children, (child) =>
+          child.anySelected
+        node.allSelected = any && _.all(childrenSelected)
     else
       node.allSelected = (parent? && parent.allSelected) || @_selected(node)
     return node.allSelected
@@ -60,6 +64,8 @@ class compactTree.CompactTree extends Backbone.View
   remove: ->
     _.each @childViews, (vw) ->
       vw.remove()
+    @stopListening()
+    @undelegateEvents()
     super()
 
   template: =>

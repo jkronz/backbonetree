@@ -1,5 +1,5 @@
 (function() {
-  var _ref,
+  var _ref, _ref1,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -74,7 +74,7 @@
     };
 
     CompactTree.prototype.calculateSelected = function(node, parent) {
-      var childrenSelected,
+      var any, childrenSelected,
         _this = this;
       if ((node.children != null) && node.children.length > 0) {
         if (((parent != null) && parent.allSelected) || this._selected(node)) {
@@ -86,8 +86,11 @@
           childrenSelected = _.map(node.children, function(child) {
             return _this.calculateSelected(child, node);
           });
-          node.anySelected = _.any(childrenSelected);
-          node.allSelected = node.anySelected && _.all(childrenSelected);
+          any = _.any(childrenSelected);
+          node.anySelected = any || _.any(node.children, function(child) {
+            return child.anySelected;
+          });
+          node.allSelected = any && _.all(childrenSelected);
         }
       } else {
         node.allSelected = ((parent != null) && parent.allSelected) || this._selected(node);
@@ -99,6 +102,8 @@
       _.each(this.childViews, function(vw) {
         return vw.remove();
       });
+      this.stopListening();
+      this.undelegateEvents();
       return CompactTree.__super__.remove.call(this);
     };
 
@@ -110,14 +115,6 @@
 
   })(Backbone.View);
 
-}).call(this);
-
-(function() {
-  var _ref,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
   compactTree.CompactTreeNode = (function(_super) {
     __extends(CompactTreeNode, _super);
 
@@ -127,8 +124,8 @@
       this.childMarkup = __bind(this.childMarkup, this);
       this.render = __bind(this.render, this);
       this.triggerCurrentViewport = __bind(this.triggerCurrentViewport, this);
-      _ref = CompactTreeNode.__super__.constructor.apply(this, arguments);
-      return _ref;
+      _ref1 = CompactTreeNode.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     CompactTreeNode.prototype.tagName = 'li';
