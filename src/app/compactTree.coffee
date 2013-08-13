@@ -1,11 +1,15 @@
 window.compactTree = {}
 class compactTree.CompactTree extends Backbone.View
-  tagName: 'ul'
   className: 'compact-tree'
+
+  events:
+    'click .back': 'showParent'
+
   initialize: (options) ->
     @tree = options.tree
     @childViews = []
     @nameField = options.nameField
+    @listenTo @, 'compact-tree:updateViewport', @refreshViewport
     if typeof options.selected == "string"
       @_selected = (node) ->
         node[options.selected]
@@ -21,8 +25,21 @@ class compactTree.CompactTree extends Backbone.View
       treeView: @
     @childViews.push(view)
     view.render()
-    view.currentViewport(view)
+    @$el.html(@template())
+    @refreshViewport(view)
     return this
+
+  showParent: (event) =>
+    @refreshViewport(@currentView.parent)
+    event?.stopPropagation()
+    event?.preventDefault()
+
+  refreshViewport: (@currentView) =>
+    if @currentView.parent?
+      @$('.back').show()
+    else
+      @$('.back').hide()
+    @$('.tree-items').html(@currentView.childMarkup())
 
   calculateSelected: (node, parent) =>
     if node.children? && node.children.length > 0
@@ -44,6 +61,12 @@ class compactTree.CompactTree extends Backbone.View
     _.each @childViews, (vw) ->
       vw.remove()
     super()
+
+  template: =>
+    """
+    <a class="back" href="#"><i class="icon-caret-left"></i> Back</a>
+    <ul class="tree-items"></ul>
+    """
 
 
 

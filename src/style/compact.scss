@@ -1,5 +1,7 @@
-ul.compact-tree, ul.compact-tree ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
+.compact-tree {
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
 }

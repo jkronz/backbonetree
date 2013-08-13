@@ -1,0 +1,6 @@
+/* line 2, ../../src/style/compact.scss */
+.compact-tree ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
