@@ -5,6 +5,7 @@
         rel="stylesheet">
   <link href="https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
   <link href="dist/style/backbonetree.css" rel="stylesheet">
+  <link href="dist/style/compact.css" rel="stylesheet">
 </head>
 <body>
 <div class="container" id="tree-control-container">
@@ -20,13 +21,21 @@
       <div class="selected-nodes"></div>
     </div>
   </div>
+  <div class="row">
+    <div class="span6">
+      <h2>A compact read-only version:</h2>
+      <div class="compact">
 
+      </div>
+    </div>
+  </div>
 </div>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript" src="lib/js/lodash.min.js"></script>
 <script type="text/javascript" src="lib/js/backbone-min.js"></script>
 <script type="text/javascript" src="dist/app/backbonetree.js"></script>
 <script type="text/javascript" src="dist/app/statictree.js"></script>
+<script type="text/javascript" src="dist/app/compacttree.js"></script>
 <script type="text/javascript" src="sampledata.js"></script>
 <script type="text/javascript">
   var selectedNodes = [10100000, 25200000];
@@ -48,7 +57,14 @@
         return _.contains(selectedNodes, node.id)
       }
     });
-
+    var compactView = new compactTree.CompactTree({
+      tree: sampledata,
+      nameField: 'symbol',
+      selected: function(node) {
+        return _.contains(selectedNodes, node.id)
+      }
+    });
+    $('.compact').html(compactView.render().el);
     var displayCheckedNodes = function() {
       selectedNodes = treeView.collectCheckedNodes();
       selectedNodesView.remove();

@@ -7,6 +7,11 @@ module.exports = (grunt) ->
     'src/app/staticTree.coffee'
     'src/app/staticTreeNode.coffee'
   ]
+  compactSourceFiles = [
+    'src/app/compactTree.coffee'
+    'src/app/compactTreeNode.coffee'
+  ]
+
   grunt.initConfig
     concat:
       dist:
@@ -15,16 +20,21 @@ module.exports = (grunt) ->
       static:
         src: staticSourceFiles
         dest: 'temp/staticdist.coffee'
+      compact:
+        src: compactSourceFiles
+        dest: 'temp/compactdist.coffee'
     coffee:
       app:
         files: [
           'dist/app/backbonetree.js': sourceFiles
           'dist/app/statictree.js': staticSourceFiles
+          'dist/app/compacttree.js': compactSourceFiles
         ]
       prod:
         files: [
           'dist/app/backbonetree.dist.js': 'temp/dist.coffee'
           'dist/app/statictree.dist.js': 'temp/staticdist.coffee'
+          'dist/app/compacttree.dist.js': 'temp/compactdist.coffee'
         ]
 
     compass:
@@ -37,6 +47,7 @@ module.exports = (grunt) ->
         files:
           'dist/app/backbonetree.min.js': ['dist/app/backbonetree.dist.js']
           'dist/app/statictree.min.js': ['dist/app/statictree.dist.js']
+          'dist/app/compacttree.min.js': ['dist/app/compacttree.dist.js']
     watch:
       scripts:
         files: 'src/app/**/*.coffee'
